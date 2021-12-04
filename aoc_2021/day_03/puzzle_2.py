@@ -39,23 +39,36 @@ def pad_right_to_longest(bit_arrays: List[List[int]]) -> List[List[int]]:
     ]
 
 
-def pop_most_common_left(bit_arrays: List[List[int]]) -> Tuple[int, List[List[int]]]:
+def most_common(avg_bit_value: int):
+    """
+    tell most common bit from avg bit values:
+    if most common bit is 1, avg bit value >= 0.5 is True -> 1
+    if most common bit is 0, avg bit value >= 0.5 is False -> 0
+    """
+    return int(avg_bit_value >= 0.5)
+
+
+def least_common(avg_bit_value: int):
+    """
+    tell least common bit value from avg bit value:
+    if least common bit is 0, then most common bit is 1:
+        if most common bit 1, avg bit value < 0.5 is False -> 0
+    if least common bit is 1, then most common bit is 0:
+        if most common bit 0, avg bit value < 0.5 is True -> 1
+    """
+    return int(avg_bit_value < 0.5)
+
+
+def pop_common_left(bit_arrays: List[List[int]],
+                    common_bit_fn: Callable[[int], int]) -> Tuple[int, List[List[int]]]:
     # rmb: right-most bit
     split_lists = [(bits, rmb) for *bits, rmb in bit_arrays]
-    most_common_bit = int(sum((rmb for bits, rmb in split_lists)) / len(split_lists) >= 0.5)
-    return most_common_bit, [bits
-                             for bits, rmb
-                             in split_lists
-                             if rmb == most_common_bit]
-
-
-def pop_least_common_left(bit_arrays: List[List[int]]) -> Tuple[int, List[List[int]]]:
-    split_lists = [(bits, rmb) for *bits, rmb in bit_arrays]
-    least_common_bit = int(sum((rmb for bits, rmb in split_lists)) / len(split_lists) < 0.5)
-    return least_common_bit, [bits
-                              for bits, rmb
-                              in split_lists
-                              if rmb == least_common_bit]
+    avg_bit_value = sum((rmb for bits, rmb in split_lists)) / len(split_lists)
+    common_bit = common_bit_fn(avg_bit_value)
+    return common_bit, [bits
+                        for bits, rmb
+                        in split_lists
+                        if rmb == common_bit]
 
 
 def arr_to_bits(arr: List[int]) -> int:
@@ -70,7 +83,7 @@ if __name__ == '__main__':
     bits_for_most_common = []
     nums = nums_as_padded_reversed_list
     while len(nums) > 1:
-        common, nums = pop_most_common_left(nums)
+        common, nums = pop_common_left(nums, most_common)
         bits_for_most_common.append(common)
     rest = nums.pop()
     bits_for_most_common = [*bits_for_most_common, *rest[::-1]]
@@ -80,7 +93,7 @@ if __name__ == '__main__':
     bits_for_least_common = []
     nums = nums_as_padded_reversed_list
     while len(nums) > 1:
-        common, nums = pop_least_common_left(nums)
+        common, nums = pop_common_left(nums, least_common)
         bits_for_least_common.append(common)
     rest = nums.pop()
     bits_for_least_common = [*bits_for_least_common, *rest[::-1]]

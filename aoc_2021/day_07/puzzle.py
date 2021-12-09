@@ -15,7 +15,7 @@ def puzzle_2_cost_fn(submarine_position: int, target_position: int):
 
 def total_fuel_costs(positions: List[int], cost_fn: Callable[[int, int], int]) -> Iterator[int]:
     return (
-        sum([cost_fn(pos, x) for pos in positions])
+        sum(cost_fn(pos, x) for pos in positions)
         for x
         in range(min(positions), max(positions) + 1)
     )

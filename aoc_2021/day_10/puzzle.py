@@ -1,4 +1,3 @@
-import json
 from functools import reduce
 from typing import Optional, Tuple
 
@@ -38,7 +37,6 @@ def consume(line: str, stack: str = "") -> Tuple[Optional[str], Optional[str]]:
 
     :return: first wrong bracket, None
             or None, autocomplete
-        or None if correct or just incomplete
     """
 
     def is_opening(ch: str) -> bool:

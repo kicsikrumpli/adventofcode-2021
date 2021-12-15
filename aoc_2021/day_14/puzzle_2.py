@@ -3,6 +3,7 @@ from functools import cache
 from itertools import groupby
 from typing import Dict, Iterator
 
+from aoc_2021.day_14.input import puzzle_input
 from aoc_2021.day_14.puzzle import parse, test_input
 
 
@@ -27,19 +28,23 @@ def stats(seq: str) -> Dict[str, int]:
 
 
 def count_freqs(rules: Dict[str, str], pair: str, depth: int) -> Dict[str, int]:
-    # @cache
-    def _count_freqs(_pair: str, _depth: int) -> Dict[str, int]:
-        if _depth == 0 or _pair not in rules:
-            return stats(_pair)
+    _counts = dict()
 
+    def _count_freqs(_pair: str, _depth: int):
         a, b = _pair
-        m = rules.get(_pair)
-        return merge_dicts(
-            count_freqs(rules, a + m, _depth - 1),
-            count_freqs(rules, m + b, _depth - 1)
-        )
+        if _depth == 0 or _pair not in rules:
+            return
 
-    return _count_freqs(pair, depth)
+        m = rules.get(_pair)
+
+        _counts[m] = _counts.get(m, 0) + 1
+
+        _count_freqs(a + m, _depth - 1)
+        _count_freqs(m + b, _depth - 1)
+        return
+
+    _count_freqs(pair, depth)
+    return _counts
 
 
 def pairs(seq: str) -> Iterator[str]:
@@ -49,16 +54,15 @@ def pairs(seq: str) -> Iterator[str]:
 
 
 if __name__ == '__main__':
-    start_seq, rules = parse(test_input)
-    print(start_seq)
-    for i in range(30):
-        counts = dict()
-        s = time.time()
-        for pair in pairs(start_seq):
-            new_counts = count_freqs(rules, pair, i)
-            # print(new_counts)
-            counts = merge_dicts(counts, new_counts)
-            # print(counts)
-        print(i, (time.time() - s), counts)
+    # start_seq, rules = parse(test_input)
+    start_seq, rules = parse(puzzle_input)
+    counts = stats(start_seq)
+    start = time.time()
+    for pair in pairs(start_seq):
+        new_counts = count_freqs(rules, pair, 40)
+        # print(new_counts)
+        counts = merge_dicts(counts, new_counts)
+        # print(counts)
+    print(time.time() - start, counts)
 
-"""{'B': 3497, 'N': 1729, 'C': 596, 'H': 322}"""
+"""frequencies:  [('B', 1749), ('C', 298), ('H', 161), ('N', 865)]"""

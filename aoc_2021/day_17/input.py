@@ -1,0 +1,1 @@
+puzzle_input = "target area: x=241..275, y=-75..-49"
